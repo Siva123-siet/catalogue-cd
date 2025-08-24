@@ -1,0 +1,7 @@
+deployment:
+  imageURL: siva316/catalogue
+  imageversion: IMAGE_VERSION
+hpa:
+  utilization: 75
+  minreplicas: 1
+  maxreplicas: 10

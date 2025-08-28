@@ -28,8 +28,33 @@ pipeline {
                 sh """
                   aws eks update-kubeconfig --region $REGION --name "$PROJECT-${params.deploy_to}"
                   kubectl get nodes
+                  kubectl apply -f 01-namespace.yaml
+                  sed -i "s/IMAGE_VERSION/${params.appVersion}/g" values-${params.deploy_to}.yaml
+                  helm upgrade --install $COMPONENT -f values-${params.deploy_to}.yaml -n $PROJECT .
                """
                 }
+                }
+            }
+        }
+        stage('check status'){
+            steps{
+                script{
+                withAWS(credentials: 'aws-auth', region: 'us-east-1'){
+                def deploymentStatus = sh(script: 'kubectl rollout status deployment/catalogue -n $PROJECT --request-timeout=30s || echo FAILED', returnStdout: true).trim()
+                if (deploymentStatus.contains("successfully rolled out")) {
+                     echo "Deployment is success"
+                } else {
+                   sh """
+                      helm rollback $COMPONENT -n $PROJECT
+                      sleep 20
+                   """
+                   def rollbackStatus = sh(script: 'kubectl rollout status deployment/catalogue -n $PROJECT --request-timeout=30s || echo FAILED', returnStdout: true).trim()
+                   if (rollbackStatus.contains("successfully rolled out")) {
+                     echo "Deployment is failure, Rollback Success"
+                   }
+                   else{
+                     echo "Deployment is failure, Rollback failure.Application is not running"
+                   }
                 }
             }
         }
@@ -47,4 +72,6 @@ pipeline {
             echo 'Hello failure'
         }
     }
+}
+}
 }

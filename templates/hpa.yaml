@@ -8,12 +8,12 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: catalogue
-  minReplicas: {{ .Values-dev.hpa.minreplicas }}
-  maxReplicas: {{ .Values-dev.hpa.maxreplicas }}
+  minReplicas: {{ .Values.hpa.minreplicas }}
+  maxReplicas: {{ .Values.hpa.maxreplicas }}
   metrics:
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: {{ .Values-dev.hpa.utilization }}
+        averageUtilization: {{ .Values.hpa.utilization }}

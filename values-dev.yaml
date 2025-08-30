@@ -1,5 +1,6 @@
 deployment:
-  imageURL: siva316/catalogue
+  # imageURL: siva316/catalogue
+  imageURL: 097003440739.dkr.ecr.us-east-1.amazonaws.com/roboshop/catalogue
   imageversion: IMAGE_VERSION
 hpa:
   utilization: 75

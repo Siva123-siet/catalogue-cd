@@ -60,7 +60,46 @@ pipeline {
         }
     }
  }
- }
+ }      // API testing/Functional testing
+        stage('Functional Testing'){
+            when {
+                    expression { params.deploy_to == "dev" }
+                }
+            steps{
+                script{
+                    echo "Run functional test cases"
+                }
+            }
+        }
+        // All components testing
+        stage('Integration Testing'){
+            when {
+                    expression { params.deploy_to == "qa" }
+                }
+            steps{
+                script{
+                    echo "Run Integration test cases"
+                }
+            }
+        }
+        stage('Prod Deploy') {
+            when {
+                    expression { params.deploy_to == "prod" }
+                }
+            steps {
+                script {
+                  withAWS(credentials: 'aws-auth', region: 'us-east-1') {
+                // Your AWS CLI commands or other AWS interactions go here
+                sh """
+                    echo "get cr number"
+                    echo "check within the deployment window"
+                    echo "is CR approved"
+                    echo "trigger PROD deploy"
+               """
+                }
+                }
+            }
+        }
     //post build
     post { 
         always { 
